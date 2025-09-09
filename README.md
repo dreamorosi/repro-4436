@@ -1,26 +1,57 @@
-# Sample Triage Project
+# Triage Issue 4436
 
-This repository contains a sample Node.js project to deploy a AWS Lambda function using the AWS Cloud Development Kit (CDK). The main goal of this project is to provide a testing ground for triaging issues and bug reports related to Powertools for AWS Lambda (TypeScript).
+This repository contains a sample Node.js project to deploy a AWS Lambda function using the AWS Cloud Development Kit (CDK). The main goal of this project is to reproduce the issue at aws-powertools/powertools-lambda-typescript#4436.
 
-## Triaging workflow
+## Reproduction Steps
 
-1. Fork the repository using the "Use this template" button (green, top right).
-2. Clone your forked repository to your local machine.
-3. Run `npm ci` to install dependencies.
-4. Install any missing dependencies by running `npm install <package-name>`.
-5. Make changes to the Lambda function code in `src/index.ts` or the CDK stack in `lib/triage-stack.ts`.
-6. Deploy the stack using `npm run cdk deploy`.
-7. Test the Lambda function by invoking it with a sample event payload from the issue report or by creating a new one in the `events/` directory.
-8. Observe the logs in CloudWatch to verify the function's behavior.
-9. If you are able to reproduce the issue, update this `README.md` file with the details of the issue, including:
-   - Steps to reproduce
-   - Expected behavior
-   - Actual behavior
-   - Any relevant logs or error messages
-10. Push your changes to your forked repository and report your findings in the original issue report on the Powertools for AWS Lambda GitHub repository.
+1. Clone the repository to your local machine.
+2. Run `npm ci` to install dependencies.
+3. Deploy the stack using `npm run cdk deploy`.
+4. Copy the SQS queue name/url from the stack outputs to the `src/send-message.js` file.
+5. Run `npm run cdk watch` to enable live reloading and stream logs.
+6. Send a test message to the queue by running `node src/send-message.js`.
+7. Observe the logs, which should contain a log similar to the one below:
 
-> [!note]
-> The project comes with a `devcontainer.json` file, if you know how to use it, you can open the project in a development container with all dependencies pre-installed. This is especially useful if you want to avoid installing Node.js and other dependencies on your local machine. You can use Visual Studio Code with the Remote - Containers extension to open the project in a dev container - more information can be found in the [VS Code documentation](https://code.visualstudio.com/docs/devcontainers/containers).
+```json
+{
+  "level": "ERROR",
+  "message": "Failed to process messages",
+  "timestamp": "2025-09-09T07:47:48.488Z",
+  "service": "service_undefined",
+  "sampling_rate": 0,
+  "xray_trace_id": "1-68bfdba3-b4a5ff98e63c4ceac2fc9f6b",
+  "failedMessages": [
+    {
+      "error": "Failed to parse record",
+      "record": {
+        "messageId": "8ca802d1-27d2-4f5d-8ee2-bb25b1fc3633",
+        "receiptHandle": "AQEBklCMHdV/MoXxPtkGqLj6ErCJ2MgSWmzwp6xlEHRrrCajDqTfI37bACN8PmANEbsCiFcvwnpEqvYhuFc/ocNKhRf8LL+ngLkLpRTS2o+qfjBasWppRpPt8gj9kTLxpvtE5up9vPa0bTb7G0Sn4En0T1n1D1Q+1Ua8EWPBhKalHcTrOhraxaOImjKfehhVsJPKNVHj4eI9O9VhF3GCjpAXm3C5+Gba3865PQd5fcA5o0RYOfJb8VF6NPJvHi3yK1aW4geNP83SKkxlt3+jxHygf8yEP2B8D+q2gJKi5FgFy46onsOEFLrpFHgt535FTFV04yBeEdhVCjrnqMhN39a6Cw+/rgfgb7oOnQGhdIw2sWf8uxbGVeAYgyCUNwwYDs2Q",
+        "body": "{\"foo\":\"string\"}",
+        "attributes": {
+          "ApproximateReceiveCount": "1",
+          "SentTimestamp": "1757404060666",
+          "SenderId": "AROAXZWZ5ZDPNIH6C6ODK:aamorosi-Isengard",
+          "ApproximateFirstReceiveTimestamp": "1757404060680"
+        },
+        "messageAttributes": {
+          "baggage": {
+            "stringValue": "baggageAttr=someVal",
+            "binaryValue": null,
+            "stringListValues": [],
+            "binaryListValues": [],
+            "dataType": "String"
+          }
+        },
+        "md5OfMessageAttributes": "c463394b93aa40fde42d504642922761",
+        "md5OfBody": "a9882e1d763c321885eb14f5b9db5db3",
+        "eventSource": "aws:sqs",
+        "eventSourceARN": "arn:aws:sqs:eu-west-1:123456789012:Triage4436",
+        "awsRegion": "eu-west-1"
+      }
+    }
+  ]
+}
+```
 
 ## Architecture
 
